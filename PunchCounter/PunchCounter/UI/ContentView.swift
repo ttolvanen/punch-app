@@ -14,6 +14,8 @@ struct ContentView: View {
 
             StatsOverlayView(session: session)
 
+            MilestoneAnimationView(session: session)
+
             if cameraPermissionDenied {
                 cameraPermissionOverlay
             }

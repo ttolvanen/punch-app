@@ -9,12 +9,18 @@ final class PunchSession {
     private(set) var punchesPerSecond: Double = 0.0
     private(set) var sessionDuration: TimeInterval = 0.0
     private(set) var isActive: Bool = false
+    private(set) var lastMilestoneCount: Int = 0
 
     var recentPunches: [Date] = []
     private var sessionStart: Date?
-    private var timer: Timer?
+    nonisolated(unsafe) private var timer: Timer?
 
-    var now: @Sendable () -> Date = { Date() }
+    var now: () -> Date = { Date() }
+
+    deinit {
+        timer?.invalidate()
+        timer = nil
+    }
 
     func recordPunch() {
         let timestamp = now()
@@ -30,6 +36,12 @@ final class PunchSession {
         }
         updateSpeed()
 
+        PunchSoundPlayer.playPunch()
+        if punchCount % 50 == 0 {
+            lastMilestoneCount = punchCount
+            PunchSoundPlayer.playMilestone()
+        }
+
         let generator = UIImpactFeedbackGenerator(style: .rigid)
         generator.impactOccurred()
     }
@@ -40,6 +52,7 @@ final class PunchSession {
         sessionDuration = 0.0
         isActive = false
         recentPunches.removeAll()
+        lastMilestoneCount = 0
         sessionStart = nil
         stopDisplayLink()
     }

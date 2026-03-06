@@ -8,15 +8,13 @@ nonisolated enum PunchPhase: Sendable {
 
 nonisolated struct PunchPhaseStateMachine: Sendable {
     private(set) var phase: PunchPhase = .idle
-    private var extendingFrameCount: Int = 0
     private var missedFrameCount: Int = 0
 
     mutating func update(areaGrowthRate: CGFloat?, handDetected: Bool) -> Bool {
         guard handDetected, let rate = areaGrowthRate else {
             missedFrameCount += 1
-            if missedFrameCount >= 10 {
+            if missedFrameCount >= 6 {
                 phase = .idle
-                extendingFrameCount = 0
                 missedFrameCount = 0
             }
             return false
@@ -26,14 +24,8 @@ nonisolated struct PunchPhaseStateMachine: Sendable {
 
         switch phase {
         case .idle:
-            if rate > 0.15 {
-                extendingFrameCount += 1
-                if extendingFrameCount >= 2 {
-                    phase = .extending
-                    extendingFrameCount = 0
-                }
-            } else {
-                extendingFrameCount = 0
+            if rate > 0.10 {
+                phase = .extending
             }
             return false
 
@@ -46,7 +38,6 @@ nonisolated struct PunchPhaseStateMachine: Sendable {
         case .retracting:
             if rate > -0.02 {
                 phase = .idle
-                extendingFrameCount = 0
                 return true
             }
             return false

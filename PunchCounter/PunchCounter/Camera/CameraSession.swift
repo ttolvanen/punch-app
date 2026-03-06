@@ -4,7 +4,7 @@ final class CameraSession: NSObject, @unchecked Sendable {
     nonisolated let session = AVCaptureSession()
     private nonisolated let outputQueue = DispatchQueue(label: "com.punchcounter.camera-output")
 
-    nonisolated var onSampleBuffer: (@Sendable (CMSampleBuffer) -> Void)?
+    nonisolated(unsafe) var onSampleBuffer: (@Sendable (CMSampleBuffer) -> Void)?
 
     nonisolated func start() {
         outputQueue.async { [self] in

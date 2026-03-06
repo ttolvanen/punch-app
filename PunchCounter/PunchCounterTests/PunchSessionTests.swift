@@ -58,6 +58,51 @@ final class PunchSessionTests: XCTestCase {
         session.stopDisplayLink()
     }
 
+    func test_milestoneAt50_setsLastMilestoneCount() {
+        let session = PunchSession()
+        let clock = TestClock()
+        session.now = clock.now
+        for _ in 0..<50 {
+            session.recordPunch()
+        }
+        XCTAssertEqual(session.lastMilestoneCount, 50)
+        session.stopDisplayLink()
+    }
+
+    func test_milestoneAt100_updatesLastMilestoneCount() {
+        let session = PunchSession()
+        let clock = TestClock()
+        session.now = clock.now
+        for _ in 0..<100 {
+            session.recordPunch()
+        }
+        XCTAssertEqual(session.lastMilestoneCount, 100)
+        session.stopDisplayLink()
+    }
+
+    func test_noMilestoneAt49() {
+        let session = PunchSession()
+        let clock = TestClock()
+        session.now = clock.now
+        for _ in 0..<49 {
+            session.recordPunch()
+        }
+        XCTAssertEqual(session.lastMilestoneCount, 0)
+        session.stopDisplayLink()
+    }
+
+    func test_reset_clearsLastMilestoneCount() {
+        let session = PunchSession()
+        let clock = TestClock()
+        session.now = clock.now
+        for _ in 0..<50 {
+            session.recordPunch()
+        }
+        XCTAssertEqual(session.lastMilestoneCount, 50)
+        session.reset()
+        XCTAssertEqual(session.lastMilestoneCount, 0)
+    }
+
     func test_punchesPerSecond_onlyCountsRecentWindow() {
         let session = PunchSession()
         let clock = TestClock()
